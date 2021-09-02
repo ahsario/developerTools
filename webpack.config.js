@@ -1,33 +1,48 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const { resolve } = require("path"); // 1
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const HotModuleReplacementPlugin = require("webpack/lib/HotModuleReplacementPlugin");
+const { resolve } = require("path");
 
 module.exports = {
   entry: "./src/main.js",
+  mode: "development",
   output: {
-    path: resolve(__dirname, "build"), // 2
-    filename: "main.[contenthash].js", // 3
+    path: resolve(__dirname, "build"),
+    filename: "main.[contenthash].js",
   },
   module: {
     rules: [
       {
-        test: /\\.(png|jpe?g|gif|mp3)$/i, // 1
-        use: "file-loader", // 2
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: ["babel-loader"],
       },
       {
-        test: /\\.css$/, // 1
-        use: [MiniCssExtractPlugin.loader, "css-loader"], // 2
+        test: /\.(scss|css)$/,
+        use: ["style-loader", "css-loader", "sass-loader"],
+      },
+      {
+        test: /\.(?:ico|gif|png|jpg|jpeg|mp3)$/i,
+        type: "asset/resource",
       },
     ],
   },
   plugins: [
-    new HtmlWebpackPlugin({ template: resolve(__dirname, "index.html") }),
-    new MiniCssExtractPlugin({
-      // 2
-      filename: "[name].[contenthash].css", // 3
+    new HtmlWebpackPlugin({
+      title: "webpack Boilerplate",
+      template: resolve(__dirname, "index.html"),
+      filename: "index.html",
     }),
+    new MiniCssExtractPlugin({
+      filename: "[name].[contenthash].css",
+    }),
+    new CleanWebpackPlugin(),
+    new HotModuleReplacementPlugin(),
   ],
   devServer: {
-    port: 9000,
+    compress: true,
+    hot: true,
+    port: 9080,
   },
 };
