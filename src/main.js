@@ -2,7 +2,10 @@ import { diffDates, diffToHtml } from "./datecalc.js"; // 1
 import { formatError } from "./utils.js"; // 2
 import { trigger } from "./trigger.js";
 import { calcTime } from "./calcTime.js";
-// import { Howl, Howler } from "howler";
+import image1 from "./images/image1.png";
+import "../style.css";
+import { Howl, Howler } from "howler";
+import muse from "./sound/sound.mp3";
 
 const dateCalcForm = document.getElementById("datecalc");
 const dateCalcResult = document.getElementById("datecalc__result");
@@ -13,13 +16,19 @@ const timerSpan = document.getElementById("timerSpan");
 let timerId;
 
 document.getElementById("start").addEventListener("click", () => {
-  timerId = setInterval(() => calcTime(deadline, timerSpan), 1000);
-  if (Math.ceil(new Date() - new Date(timerSpan.value))) clearInterval(timerId);
+  timerId = setInterval(() => {
+    calcTime(deadline, timerSpan);
+    console.log(new Date(timerSpan.value));
+    if (Math.ceil(new Date(deadline.value) - new Date()) <= 0) {
+      sound.play("blast");
+      clearInterval(timerId);
+    }
+  }, 1000);
 });
 
-document
-  .getElementById("stop")
-  .addEventListener("click", () => clearInterval(timerId));
+document.getElementById("stop").addEventListener("click", () => {
+  clearInterval(timerId);
+});
 
 document
   .getElementById("el1")
@@ -39,10 +48,20 @@ function handleCalcDates(event) {
   (firstDate = firstDate.value), (secondDate = secondDate.value);
 
   if (firstDate && secondDate) {
-    const diff = diffDates(firstDate, secondDate); // 3
-    dateCalcResult.innerHTML = diffToHtml(diff); // 4
+    const diff = diffDates(firstDate, secondDate);
+    dateCalcResult.innerHTML = diffToHtml(diff);
   } else
     dateCalcResult.innerHTML = formatError(
       "Для расчета промежутка необходимо заполнить оба поля"
-    ); // 5
+    );
 }
+
+var sound = new Howl({
+  src: [muse],
+  volume: 0.3,
+  sprite: {
+    blast: [0, 2000],
+    laser: [3000, 700],
+    winner: [5000, 9000],
+  },
+});
